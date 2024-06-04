@@ -1,0 +1,94 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the code using Maven...'
+                // Print statement to simulate building the code
+                echo 'Running: mvn clean package'
+            }
+        }
+        stage('Unit and Integration Tests') {
+            steps {
+                echo 'Running unit and integration tests using JUnit...'
+                // Print statement to simulate running tests
+                echo 'Running: mvn test'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/target/*.log', allowEmptyArchive: true
+                    emailext subject: "Pipeline Unit and Integration Tests Stage: ${currentBuild.fullDisplayName} - ${currentBuild.currentResult}",
+                             body: "The Unit and Integration Tests stage has completed with status: ${currentBuild.currentResult}\n\nLogs are attached.",
+                             attachLog: true,
+                             compressLog: true,
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                }
+            }
+        }
+        stage('Code Analysis') {
+            steps {
+                echo 'Analyzing the code using SonarQube...'
+                // Print statement to simulate code analysis
+                echo 'Running: mvn sonar:sonar'
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                echo 'Performing security scan using OWASP ZAP...'
+                // Print statement to simulate security scan
+                echo 'Running: owasp-zap.sh -cmd -quickurl http://localhost -quickout report.html'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/zap_report.html', allowEmptyArchive: true
+                    emailext subject: "Pipeline Security Scan Stage: ${currentBuild.fullDisplayName} - ${currentBuild.currentResult}",
+                             body: "The Security Scan stage has completed with status: ${currentBuild.currentResult}\n\nLogs are attached.",
+                             attachLog: true,
+                             compressLog: true,
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                }
+            }
+        }
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploying the application to a staging server (e.g., AWS EC2 instance)...'
+                // Print statement to simulate deployment to staging
+                echo 'Running: scp target/myapp.jar ec2-user@staging-server:/path/to/deploy'
+            }
+        }
+        stage('Integration Tests on Staging') {
+            steps {
+                echo 'Running integration tests on the staging environment...'
+                // Print statement to simulate integration tests on staging
+                echo 'Running: curl -s http://staging-server:8080/api/test'
+            }
+        }
+        stage('Deploy to Production') {
+            steps {
+                echo 'Deploying the application to a production server (e.g., AWS EC2 instance)...'
+                // Print statement to simulate deployment to production
+                echo 'Running: scp target/myapp.jar ec2-user@production-server:/path/to/deploy'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            emailext subject: "Pipeline Success: ${currentBuild.fullDisplayName}",
+                     body: "The pipeline has completed successfully.",
+                     attachLog: true,
+                     compressLog: true,
+                     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+        }
+        failure {
+            emailext subject: "Pipeline Failure: ${currentBuild.fullDisplayName}",
+                     body: "The pipeline has failed.",
+                     attachLog: true,
+                     compressLog: true,
+                     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+        }
+    }
+}
