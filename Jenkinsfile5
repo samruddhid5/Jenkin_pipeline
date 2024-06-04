@@ -46,7 +46,8 @@ pipeline {
                              body: "The Security Scan stage has completed with status: ${currentBuild.currentResult}\n\nLogs are attached.",
                              attachLog: true,
                              compressLog: true,
-                             recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                             to: 'samruddhidhavale990@gmail.com'
                 }
             }
         }
@@ -81,14 +82,16 @@ pipeline {
                      body: "The pipeline has completed successfully.",
                      attachLog: true,
                      compressLog: true,
-                     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                     to: 'samruddhidhavale990@gmail.com'
         }
         failure {
             emailext subject: "Pipeline Failure: ${currentBuild.fullDisplayName}",
                      body: "The pipeline has failed.",
                      attachLog: true,
                      compressLog: true,
-                     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                     recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                     to: 'samruddhidhavale990@gmail.com'
         }
     }
 }
